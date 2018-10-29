@@ -1,0 +1,42 @@
+function coefs = linear_interp(node,value)
+%USAGE: 'coefs' is coefficient arry of [a;b] of each piecewise
+%       'node' is the nodes of known data
+%       'value' is the value of each node
+% Author: Zeyu Wang
+% 28-Oct-2018 19:35:36 @ SUT
+%% ====Construct_the_shape_function&physics_function====
+coefs(1,:) = diff(value) ./ diff(node);
+syms x;
+shape_fun = cell(2,length(node) - 1);
+phy_fun = cell(1,length(node) - 1);
+temp = zeros(1,length(node) - 1);
+for i = 1:1:length(node) - 1
+    temp(1,i) = (value(i) * node(i+1)) - (value(i+1)*node(i));
+    shape_fun{1,i} = (x-node(i+1))/(node(i)-node(i+1));
+    shape_fun{2,i} = (x-node(i))/(node(i+1)-node(i)); 
+end
+coefs(2,:) = temp ./ diff(node);
+for i = 1:1:length(node) - 1
+    phy_fun{1,i} = x*coefs(1,i) + coefs(2,i); 
+end
+%% ====Plot_the_physics_function====
+figure
+for i = 1:1:length(node) - 1
+    phy_fun_real = matlabFunction(phy_fun{1,i});
+    x = node(i):0.001:node(i+1);
+    plot(x,phy_fun_real(x))
+    hold on 
+end
+plot(node,value,'*')
+%% ====Plot_the_shape_function==== 
+figure
+for i = 1:1:length(node) - 1
+    shape_fun_real_1 = matlabFunction(shape_fun{1,i});
+    shape_fun_real_2 = matlabFunction(shape_fun{2,i});
+    x = node(i):0.001:node(i+1);
+    plot(x,shape_fun_real_1(x))
+    hold on 
+    plot(x,shape_fun_real_2(x))
+    hold on 
+end
+end
